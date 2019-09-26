@@ -10,7 +10,14 @@ import (
     "github.com/ChimeraCoder/anaconda"
     "github.com/joho/godotenv"
     "time"
+    // "sort"
 )
+
+type tagNum struct{
+    text string
+    count int
+}
+type tagNums []tagNum
 
 func loadEnv() {
     err := godotenv.Load()
@@ -25,8 +32,25 @@ func getTwitterApi() *anaconda.TwitterApi {
     return anaconda.NewTwitterApi(os.Getenv("ACCESS_TOKEN"), os.Getenv("ACCESS_TOKEN_SECRET"))
 }
 
-func arrayToHash(array []string) map[string]int {
+func Sort(mstr []tagNum) []tagNum { 
+    i := 1
+    for {
+        if mstr[i - 1].count < mstr[i].count {
+            mstr[i - 1], mstr[i] = mstr[i], mstr[i -1]
+            i = 0
+        }
+        i = i + 1
+        if i == len(mstr) {
+            break
+        }
+    }
+    return mstr
+}
+
+func arrayToHash(array []string) []tagNum {
     m := map[string]int{}
+    var newTagNum tagNum
+    var m_struct []tagNum
     for _, arr := range array {
         _, ok := m[arr]
         if ok {
@@ -35,7 +59,13 @@ func arrayToHash(array []string) map[string]int {
             m[arr] = 1
         }
     }
-    return m
+    for tex, cou := range m {
+        newTagNum.count = cou
+        newTagNum.text = tex
+        m_struct = append(m_struct, newTagNum)
+    }
+    // sort.Sort(m_struct)
+    return Sort(m_struct)
 }
 
 func main() {
@@ -64,10 +94,10 @@ func main() {
             }
             fmt.Println(i)
             i = i + 1
-            time.Sleep(80 * time.Second)
+            time.Sleep(10 * time.Second)
         }
     }()
-    
+
     // シグナル用のチャネル定義
     quit := make(chan os.Signal)
     // 受け取るシグナルを設定
