@@ -11,33 +11,22 @@ import (
     "github.com/joho/godotenv"
     "time"
     // "sort"
-    "strings"
 )
 
 type tagNum struct{
     text string
     count int
-    // image_count int
 }
 type tagNums []tagNum
-
 type tagImg struct{
     text string
-    image_url []string
-    image_count int
+    img []string
 }
-
-type tagImgs []tagImg
-
 type tagStr struct{
     text string
-    tag_count int
-    // image_url []anaconda.EntityMedia
-    image_count int
-    image_url []string
+    count int
+    images []string
 }
-
-type tagStrs []tagImg
 
 func loadEnv() {
     err := godotenv.Load()
@@ -52,7 +41,7 @@ func getTwitterApi() *anaconda.TwitterApi {
     return anaconda.NewTwitterApi(os.Getenv("ACCESS_TOKEN"), os.Getenv("ACCESS_TOKEN_SECRET"))
 }
 
-func Sort(mstr []tagNum) []tagNum { 
+func Sort(mstr []tagStr) []tagStr { 
     i := 1
     for {
         if mstr[i - 1].count < mstr[i].count {
@@ -67,35 +56,36 @@ func Sort(mstr []tagNum) []tagNum {
     return mstr
 }
 
-func arrayToStruct(array []string) []tagNum {
+func arrayToHash(array []tagImg) []tagStr {
     m := map[string]int{}
-    var newTagNum tagNum
-    var m_struct []tagNum
+    var newTagStr tagStr
+    var m_struct []tagStr
+    var m_structt []tagStr
     for _, arr := range array {
-        _, ok := m[arr]
+        _, ok := m[arr.text]
         if ok {
-            m[arr] = m[arr] + 1
+            m[arr.text] = m[arr.text] + 1
         }else{
-            m[arr] = 1
+            m[arr.text] = 1
         }
     }
     for tex, cou := range m {
-        newTagNum.count = cou
-        newTagNum.text = tex
-        m_struct = append(m_struct, newTagNum)
+        newTagStr.count = cou
+        newTagStr.text = tex
+        m_struct = append(m_struct, newTagStr)
     }
-    // sort.Sort(m_struct)
-    return Sort(m_struct)
-}
-
-func getImgBySlice(slice []string) []string {
-    var images []string
-    for _, link := range slice {
-        if strings.Contains(link, "http://pbs.twimg.com/media") {
-            images = append(images, link)
+    for _, tagim := range m_struct {
+        for _, artagim := range array {
+            if tagim.text == artagim.text {
+                // tagim.images = append(tagim.images, artagim.img)
+                for _, img := range artagim.img {
+                    tagim.images = append(tagim.images, img)
+                }
+            }
         }
+        m_structt = append(m_structt, tagim)
     }
-    return images
+    return Sort(m_structt)
 }
 
 func main() {
@@ -106,26 +96,34 @@ func main() {
     v := url.Values{}
     v.Set("count", "100")
     v.Set("lang", "ja")
-    var tags_form tagNums
+    var tags_form []tagImg
     var tag_form tagImg
+    var images []string
     i := 1
     go func() {
         for {searchResult, _ := api.GetSearch("%23", v)
             for _, tweet := range searchResult.Statuses {
+                images = nil
+                medias := tweet.Entities.Media
+                // fmt.Println(medias)
+                for _, media := range medias {
+                    images = append(images, media.Media_url)
+                }
                 tags := tweet.Entities.Hashtags
-                for _, tag := range tags { 
-                    tag_form.image_count = 0
+                for _, tag := range tags {
                     if tag.Text != ""  {
                         tag_form.text = tag.Text
-                        // tag_form.image_url = append(tag_form.image_url, tweet.Entities.Media)
-                        // for _, urls := range tweet.Entities.Media {
-                        //     tag_form.image_url = append(tag_form.image_url, tweet.Entities.Media)
-                        // }
-                        tag_form.image_count = tag_form.image_count + len(getImgBySlice(tweet.Entities.Media))
+                        // tag_form.img = append(tag_form.img, images)
+                        // for _, _ = range images {
+                        for _, img := range images{
+                            tag_form.img = append(tag_form.img, img)
+                            // tag_form.img = append(tag_form.img, "あああ")
+                        }
                         tags_form = append(tags_form, tag_form)
+                        tag_form.img = nil
                     }
                 }
-                // fmt.Println(tweet.Entities.Media)
+                // fmt.Println(images)
             }
             fmt.Println(i)
             i = i + 1
@@ -140,8 +138,5 @@ func main() {
     <-quit // ここでシグナルを受け取るまで以降の処理はされない
 
     // シグナルを受け取った後にしたい処理を書く
-
-    fmt.Println(arrayToStruct(tags_form))
-
+    fmt.Println(arrayToHash(tags_form))
 }
-
