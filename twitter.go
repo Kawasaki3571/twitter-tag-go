@@ -24,11 +24,20 @@ type tagNums []tagNum
 type tagImg struct{
     text string
     image_url []string
-    // image_url []anaconda.EntityMedia
     image_count int
 }
 
 type tagImgs []tagImg
+
+type tagStr struct{
+    text string
+    tag_count int
+    // image_url []anaconda.EntityMedia
+    image_count int
+    image_url []string
+}
+
+type tagStrs []tagImg
 
 func loadEnv() {
     err := godotenv.Load()
@@ -58,7 +67,7 @@ func Sort(mstr []tagNum) []tagNum {
     return mstr
 }
 
-func arrayToHash(array []string) []tagNum {
+func arrayToStruct(array []string) []tagNum {
     m := map[string]int{}
     var newTagNum tagNum
     var m_struct []tagNum
@@ -104,14 +113,14 @@ func main() {
         for {searchResult, _ := api.GetSearch("%23", v)
             for _, tweet := range searchResult.Statuses {
                 tags := tweet.Entities.Hashtags
-                for _, tag := range tags {
+                for _, tag := range tags { 
                     tag_form.image_count = 0
                     if tag.Text != ""  {
                         tag_form.text = tag.Text
                         // tag_form.image_url = append(tag_form.image_url, tweet.Entities.Media)
-                        for _, urls := range tweet.Entities.Media {
-                            tag_form.image_url = append(tag_form.image_url, tweet.Entities.Media)
-                        }
+                        // for _, urls := range tweet.Entities.Media {
+                        //     tag_form.image_url = append(tag_form.image_url, tweet.Entities.Media)
+                        // }
                         tag_form.image_count = tag_form.image_count + len(getImgBySlice(tweet.Entities.Media))
                         tags_form = append(tags_form, tag_form)
                     }
@@ -132,8 +141,7 @@ func main() {
 
     // シグナルを受け取った後にしたい処理を書く
 
-
-    fmt.Println(arrayToHash(tags_form))
+    fmt.Println(arrayToStruct(tags_form))
 
 }
 

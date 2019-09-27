@@ -26,7 +26,6 @@ type tagStr struct{
     text string
     count int
     images []string
-
 }
 
 func loadEnv() {
@@ -61,6 +60,7 @@ func arrayToHash(array []tagImg) []tagStr {
     m := map[string]int{}
     var newTagStr tagStr
     var m_struct []tagStr
+    var m_structt []tagStr
     for _, arr := range array {
         _, ok := m[arr.text]
         if ok {
@@ -83,9 +83,9 @@ func arrayToHash(array []tagImg) []tagStr {
                 }
             }
         }
+        m_structt = append(m_structt, tagim)
     }
-    // sort.Sort(m_struct)
-    return Sort(m_struct)
+    return Sort(m_structt)
 }
 
 func main() {
@@ -104,23 +104,23 @@ func main() {
         for {searchResult, _ := api.GetSearch("%23", v)
             for _, tweet := range searchResult.Statuses {
                 images = nil
-                // fmt.Println(tweet.FullText)
-                // fmt.Println(tweet.User.ScreenName)
                 medias := tweet.Entities.Media
                 // fmt.Println(medias)
                 for _, media := range medias {
                     images = append(images, media.Media_url)
                 }
-
                 tags := tweet.Entities.Hashtags
                 for _, tag := range tags {
                     if tag.Text != ""  {
                         tag_form.text = tag.Text
                         // tag_form.img = append(tag_form.img, images)
-                        for _, img := range images {
+                        // for _, _ = range images {
+                        for _, img := range images{
                             tag_form.img = append(tag_form.img, img)
+                            // tag_form.img = append(tag_form.img, "あああ")
                         }
                         tags_form = append(tags_form, tag_form)
+                        tag_form.img = nil
                     }
                 }
                 // fmt.Println(images)
