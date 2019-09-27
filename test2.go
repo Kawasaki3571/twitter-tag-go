@@ -26,6 +26,7 @@ type tagStr struct{
     text string
     count int
     images []string
+    point int
 }
 
 func loadEnv() {
@@ -44,7 +45,7 @@ func getTwitterApi() *anaconda.TwitterApi {
 func Sort(mstr []tagStr) []tagStr { 
     i := 1
     for {
-        if mstr[i - 1].count < mstr[i].count {
+        if mstr[i - 1].point < mstr[i].point {
             mstr[i - 1], mstr[i] = mstr[i], mstr[i -1]
             i = 0
         }
@@ -83,6 +84,7 @@ func arrayToHash(array []tagImg) []tagStr {
                 }
             }
         }
+        tagim.point = tagim.count * len(tagim.images)
         m_structt = append(m_structt, tagim)
     }
     return Sort(m_structt)
@@ -127,7 +129,7 @@ func main() {
             }
             fmt.Println(i)
             i = i + 1
-            time.Sleep(10 * time.Second)
+            time.Sleep(5 * time.Second)
         }
     }()
 
@@ -138,5 +140,9 @@ func main() {
     <-quit // ここでシグナルを受け取るまで以降の処理はされない
 
     // シグナルを受け取った後にしたい処理を書く
-    fmt.Println(arrayToHash(tags_form))
+    //fmt.Println(arrayToHash(tags_form))
+    for i = 0; i < 11; i++ {
+        fmt.Println(arrayToHash(tags_form)[i])
+    }
+
 }
