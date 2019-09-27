@@ -11,13 +11,24 @@ import (
     "github.com/joho/godotenv"
     "time"
     // "sort"
+    "strings"
 )
 
 type tagNum struct{
     text string
     count int
+    // image_count int
 }
 type tagNums []tagNum
+
+type tagImg struct{
+    text string
+    image_url []string
+    // image_url []anaconda.EntityMedia
+    image_count int
+}
+
+type tagImgs []tagImg
 
 func loadEnv() {
     err := godotenv.Load()
@@ -68,6 +79,16 @@ func arrayToHash(array []string) []tagNum {
     return Sort(m_struct)
 }
 
+func getImgBySlice(slice []string) []string {
+    var images []string
+    for _, link := range slice {
+        if strings.Contains(link, "http://pbs.twimg.com/media") {
+            images = append(images, link)
+        }
+    }
+    return images
+}
+
 func main() {
     loadEnv()
 
@@ -76,21 +97,26 @@ func main() {
     v := url.Values{}
     v.Set("count", "100")
     v.Set("lang", "ja")
-    var tags_form []string
+    var tags_form tagNums
+    var tag_form tagImg
     i := 1
     go func() {
         for {searchResult, _ := api.GetSearch("%23", v)
             for _, tweet := range searchResult.Statuses {
-                // fmt.Println(tweet.FullText)
-                // fmt.Println(tweet.User.ScreenName)
                 tags := tweet.Entities.Hashtags
                 for _, tag := range tags {
+                    tag_form.image_count = 0
                     if tag.Text != ""  {
-                        tags_form = append(tags_form, tag.Text)
+                        tag_form.text = tag.Text
+                        // tag_form.image_url = append(tag_form.image_url, tweet.Entities.Media)
+                        for _, urls := range tweet.Entities.Media {
+                            tag_form.image_url = append(tag_form.image_url, tweet.Entities.Media)
+                        }
+                        tag_form.image_count = tag_form.image_count + len(getImgBySlice(tweet.Entities.Media))
+                        tags_form = append(tags_form, tag_form)
                     }
                 }
-                // fmt.Println("https://twitter.com/" + tweet.User.ScreenName + "/status/" + tweet.IdStr )
-                // fmt.Println("========================================")
+                // fmt.Println(tweet.Entities.Media)
             }
             fmt.Println(i)
             i = i + 1
@@ -105,6 +131,9 @@ func main() {
     <-quit // ここでシグナルを受け取るまで以降の処理はされない
 
     // シグナルを受け取った後にしたい処理を書く
+
+
     fmt.Println(arrayToHash(tags_form))
+
 }
 
