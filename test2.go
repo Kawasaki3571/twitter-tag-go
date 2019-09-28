@@ -103,6 +103,10 @@ func main() {
     var images []string
     i := 1
     go func() {
+        tags_form = nil
+        tag_form.text = ""
+        tag_form.img = nil
+        images = nil
         for {searchResult, _ := api.GetSearch("%23", v)
             for _, tweet := range searchResult.Statuses {
                 images = nil
@@ -128,6 +132,11 @@ func main() {
                 // fmt.Println(images)
             }
             fmt.Println(i)
+            if i % 20 == 0 {
+                for k := 0; k < 10; k++{
+                    fmt.Println(arrayToHash(tags_form)[k])
+                }
+            }
             i = i + 1
             time.Sleep(5 * time.Second)
         }
@@ -140,9 +149,9 @@ func main() {
     <-quit // ここでシグナルを受け取るまで以降の処理はされない
 
     // シグナルを受け取った後にしたい処理を書く
-    //fmt.Println(arrayToHash(tags_form))
-    for i = 0; i < 11; i++ {
-        fmt.Println(arrayToHash(tags_form)[i])
-    }
+    fmt.Println("終了しました。")
+    // for i = 0; i < 11; i++ {
+    //     fmt.Println(arrayToHash(tags_form)[i])
+    // }
 
 }
