@@ -57,7 +57,7 @@ func Sort(mstr []tagStr) []tagStr {
     return mstr
 }
 
-func arrayToHash(array []tagImg) []tagStr {
+func arrayToStruct(array []tagImg) []tagStr {
     m := map[string]int{}
     var newTagStr tagStr
     var m_struct []tagStr
@@ -103,10 +103,10 @@ func main() {
     var images []string
     i := 1
     go func() {
-        tags_form = nil
-        tag_form.text = ""
-        tag_form.img = nil
-        images = nil
+        // tags_form = nil
+        // tag_form.text = ""
+        // tag_form.img = nil
+        // images = nil
         for {searchResult, _ := api.GetSearch("%23", v)
             for _, tweet := range searchResult.Statuses {
                 images = nil
@@ -134,8 +134,9 @@ func main() {
             fmt.Println(i)
             if i % 20 == 0 {
                 for k := 0; k < 10; k++{
-                    fmt.Println(arrayToHash(tags_form)[k])
+                    fmt.Println(arrayToStruct(tags_form)[k])
                 }
+                tags_form = nil
             }
             i = i + 1
             time.Sleep(5 * time.Second)
