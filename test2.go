@@ -87,8 +87,19 @@ func arrayToStruct(array []tagImg) []tagStr {
         tagim.point = tagim.count * len(tagim.images)
         m_structt = append(m_structt, tagim)
     }
+    m_structt = compress(m_structt)
     return Sort(m_structt)
 }
+func compress(array []tagStr) []tagStr {
+    for i, _ := range array {
+        for j := i+1; j < len(array); j++ {
+            if array[i].text == array[j].text{
+                array[j].point = 0
+            }
+        }
+    }
+    return array
+} 
 
 func main() {
     loadEnv()
